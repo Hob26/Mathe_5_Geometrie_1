@@ -14,7 +14,7 @@ window.FREIGABE = {
   "2-5":  true,   // 2.5  Winkel und Winkelarten
   "2-6":  true,   // 2.6  Winkel messen
   "2-7":  true,   // 2.7  Winkel zeichnen
-  "2-8":  true,   // 2.8  Rechteck und Quadrat
+  "2-8":  false,   // 2.8  Rechteck und Quadrat
   "2-9":  true,   // 2.9  Längen schätzen
   "2-10": true,   // 2.10 Längen umrechnen
   "2-11": true,   // 2.11 Umfang
