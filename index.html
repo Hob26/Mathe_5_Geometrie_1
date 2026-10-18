@@ -48,6 +48,8 @@
   .nr{font-family:var(--display);font-size:.95rem;font-weight:700;color:var(--acc);letter-spacing:.04em}
   .title{font-family:var(--display);font-size:1.18rem;font-weight:600;line-height:1.15;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
   .go{font-size:.85rem;color:var(--muted);margin-top:3px}
+  a.card.locked{pointer-events:none;opacity:.55;filter:grayscale(.6);box-shadow:0 8px 0 rgba(0,51,87,.5)}
+  a.card.locked::before{border-color:rgba(255,255,255,.6)}
   a.card.soon{pointer-events:none;opacity:.5;box-shadow:0 8px 0 rgba(0,51,87,.5)}
 
   @media (max-width:640px){.hero{height:190px}.hero svg.d,.hero .dash{display:none}}
@@ -146,25 +148,36 @@ const KAPITEL = [
   ]},
 ];
 
-const liste = document.getElementById("liste");
-for (const k of KAPITEL) {
-  const h = document.createElement("h2");
-  h.innerHTML = `<span class="k">${k.nr}</span>${k.name}`;
-  liste.appendChild(h);
-  const g = document.createElement("div"); g.className = "grid";
-  for (const u of k.uebungen) {
-    const a = document.createElement("a");
-    a.className = "card" + (u.fertig ? "" : " soon");
-    a.href = u.datei + ".html";
-    const small = [...u.icon].length > 2 ? " small" : "";
-    a.innerHTML =
-      `<div class="num${small}" aria-hidden="true">${u.icon}</div>
-       <div class="txt"><div class="nr">${u.nr}</div><div class="title">${u.titel}</div>
-       <div class="go">${u.fertig ? "Übung starten →" : "kommt bald"}</div></div>`;
-    g.appendChild(a);
+function zeichne(FREI) {
+  const liste = document.getElementById("liste");
+  liste.innerHTML = "";
+  for (const k of KAPITEL) {
+    const h = document.createElement("h2");
+    h.innerHTML = `<span class="k">${k.nr}</span>${k.name}`;
+    liste.appendChild(h);
+    const g = document.createElement("div"); g.className = "grid";
+    for (const u of k.uebungen) {
+      const gesperrt = u.fertig && FREI[u.datei] === false;
+      const a = document.createElement("a");
+      a.className = "card" + (!u.fertig ? " soon" : gesperrt ? " locked" : "");
+      a.href = u.datei + ".html";
+      const small = [...u.icon].length > 2 ? " small" : "";
+      const status = !u.fertig ? "kommt bald" : gesperrt ? "🔒 noch gesperrt" : "Übung starten →";
+      a.innerHTML =
+        `<div class="num${small}" aria-hidden="true">${gesperrt ? "🔒" : u.icon}</div>
+         <div class="txt"><div class="nr">${u.nr}</div><div class="title">${u.titel}</div>
+         <div class="go">${status}</div></div>`;
+      g.appendChild(a);
+    }
+    liste.appendChild(g);
   }
-  liste.appendChild(g);
 }
+/* Freigaben aus freigabe.js laden (immer frisch, ohne Zwischenspeicher) */
+const fs = document.createElement("script");
+fs.src = "freigabe.js?t=" + Date.now();
+fs.onload = () => zeichne(window.FREIGABE || {});
+fs.onerror = () => zeichne({});
+document.head.appendChild(fs);
 </script>
 </body>
 </html>

@@ -20,3 +20,8 @@ Jede Übung ist eine eigene Datei:
 
 Übung austauschen: Datei mit gleichem Namen hochladen.
 Neue Übung oder neues Kapitel: in der `index.html` bei `KAPITEL` eintragen (`fertig: true` = Karte anklickbar).
+
+## Übungen sperren / freigeben
+In `freigabe.js` steht für jede Übung `true` (offen) oder `false` (gesperrt).
+Auf GitHub: `freigabe.js` öffnen → Stift-Symbol → Wert ändern → „Commit changes“. Nach 1–2 Minuten aktiv.
+Gesperrte Übungen sind auf der Startseite grau mit Schloss – auch per QR-Code/Direktlink zeigt die Seite nur „noch gesperrt“.

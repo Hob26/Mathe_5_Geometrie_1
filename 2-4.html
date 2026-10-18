@@ -591,5 +591,23 @@ const TOPICS = {
 const TASKS = TOPICS["2.4"].tasks;
 
 </script>
+<script>
+/* Sperre: liest freigabe.js (Lehrkraft schaltet dort Übungen frei oder sperrt sie) */
+(function () {
+  const key = "2.4".replace(".", "-");
+  const s = document.createElement("script");
+  s.src = "freigabe.js?t=" + Date.now();
+  s.onload = function () {
+    if (!window.FREIGABE || window.FREIGABE[key] !== false) return;
+    document.getElementById("dots").style.display = "none";
+    document.querySelector(".sub").style.display = "none";
+    document.getElementById("card").innerHTML =
+      '<div class="end"><div class="big">🔒</div><div>Diese Übung ist noch gesperrt.</div>' +
+      '<div style="font-weight:400;font-size:19px">Deine Lehrkraft schaltet sie frei, wenn ihr so weit seid.</div>' +
+      '<a href="./" style="text-decoration:none"><button class="check">← zur Übersicht</button></a></div>';
+  };
+  document.head.appendChild(s);
+})();
+</script>
 </body>
 </html>
