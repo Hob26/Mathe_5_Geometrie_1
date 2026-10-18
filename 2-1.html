@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Profi 2.1 Koordinatensystem</title>
+<style>
+:root{--navy:#003357;--bg:#daf1ff;--blue:#27abfc;--red:#ff3131;--green:#2e7d32;--card:#ffffff;--line:#b8d8ee}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--navy);font-family:"Arial Rounded MT Bold","Nunito","Segoe UI",system-ui,-apple-system,sans-serif;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:28px 28px;min-height:100vh}
+header{max-width:860px;margin:0 auto;padding:18px 16px 6px;text-align:center;position:relative}
+@media (max-width:560px){header{padding-top:52px}}
+.back{position:absolute;left:16px;top:16px;font-size:15px;font-weight:700;color:var(--navy);text-decoration:none;background:#fff;border:2px solid var(--navy);border-radius:999px;padding:4px 12px}
+.back:hover{background:var(--navy);color:#fff}
+.badge{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:4px 14px;font-weight:700;font-size:15px;letter-spacing:.5px}
+h1{margin:10px 0 4px;font-size:clamp(26px,5vw,40px)}
+.sub{font-size:16px;opacity:.85}
+#dots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0 4px}
+.dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:3px solid var(--navy);font-weight:700}
+.dot.cur{background:var(--blue);color:#fff}.dot.ok{background:var(--green);border-color:var(--green);color:#fff}.dot.no{background:var(--red);border-color:var(--red);color:#fff}
+main{max-width:860px;margin:0 auto;padding:8px 16px 40px}
+#card{background:var(--card);border:4px solid var(--navy);border-radius:28px;padding:22px clamp(16px,4vw,32px);box-shadow:0 6px 0 rgba(0,51,87,.15)}
+.meta{display:flex;justify-content:space-between;font-weight:700;font-size:16px;opacity:.85;margin-bottom:8px}
+.q{font-size:clamp(20px,3.2vw,26px);line-height:1.45;font-weight:700;margin:6px 0 14px}
+.q small{font-weight:400}
+.figwrap{display:flex;justify-content:center;margin:8px 0 14px}
+.fig{width:100%;max-width:600px;height:auto;border-radius:14px}
+.lbl{font:700 18px sans-serif;fill:var(--navy)}
+.scale{font:700 13px sans-serif;fill:var(--navy)}.scale2{font:700 11px sans-serif;fill:#4a7da3}
+.clk{font:700 20px sans-serif;fill:var(--navy)}
+.fields{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:10px 0}
+.field{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:700}
+.field input{width:130px;font-size:26px;padding:10px 12px;border:3px solid var(--navy);border-radius:14px;text-align:center;color:var(--navy);font-weight:700}
+.field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(39,171,252,.25)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:10px 0}
+.opt{font:inherit;font-size:21px;font-weight:700;color:var(--navy);background:#f3faff;border:3px solid var(--navy);border-radius:16px;padding:14px 10px;cursor:pointer;min-height:60px}
+.opt.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+.opt.used{opacity:.35}
+.seq{min-height:54px;border:3px dashed var(--blue);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.chip{background:var(--blue);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700}
+.ph{opacity:.6}
+.small{font:inherit;background:none;border:none;color:var(--navy);text-decoration:underline;font-size:16px;cursor:pointer}
+.slider{width:100%;height:44px;accent-color:var(--red);margin:6px 0}
+.note{font-size:15px;opacity:.8;text-align:center;margin:4px 0}
+.btns{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.btns button,.end button{font:inherit;font-size:21px;font-weight:700;border-radius:999px;padding:12px 26px;cursor:pointer;border:3px solid var(--navy)}
+.hint{background:#fff7d6;color:var(--navy)}
+.check{background:var(--navy);color:#fff}
+.hintbox{background:#fff7d6;border:2px solid #e6a700;border-radius:14px;padding:12px 14px;margin-top:14px;font-size:18px;line-height:1.4}
+.fb{margin-top:14px;font-size:20px;line-height:1.45;border-radius:14px;padding:0 14px}
+.fb.ok{background:#e8f5e9;border:3px solid var(--green);padding:12px 14px}
+.fb.no{background:#ffebee;border:3px solid var(--red);padding:12px 14px}
+.fb.warn{background:#fff7d6;border:3px solid #e6a700;padding:12px 14px}
+.end{text-align:center;font-size:22px;font-weight:700;display:flex;flex-direction:column;gap:14px;align-items:center}
+.end .big{font-size:56px}
+footer{text-align:center;font-size:13px;opacity:.7;padding-bottom:20px}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="./">← Übersicht</a>
+  <span class="badge">⭐ PROFI · 2.1</span>
+  <h1>Koordinatensystem</h1>
+  <div class="sub">Tippe deine Antwort ein oder tippe auf die richtige Lösung. ⭐ leicht · ⭐⭐ mittel · ⭐⭐⭐ Knobelei</div>
+  <div id="dots"></div>
+</header>
+<main><div id="card"></div></main>
+<footer>Mathe 5 · Geometrie · Profi-Aufgaben</footer>
+<script>
+// ===== Profi-Engine (gemeinsam für alle Seiten) =====
+const NAVY = "#003357", RED = "#ff3131", GREEN = "#2e7d32", BLUE = "#27abfc";
+
+// ---------- SVG-Helfer ----------
+function pt(cx, cy, r, deg) {
+  const a = deg * Math.PI / 180;
+  return [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+}
+function svgWrap(w, h, inner) {
+  return `<svg viewBox="0 0 ${w} ${h}" class="fig" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+function gridBg(w, h, s = 20) {
+  let g = "";
+  for (let x = 0; x <= w; x += s) g += `<line x1="${x}" y1="0" x2="${x}" y2="${h}" stroke="#b8d8ee" stroke-width="1"/>`;
+  for (let y = 0; y <= h; y += s) g += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="#b8d8ee" stroke-width="1"/>`;
+  return `<rect width="${w}" height="${h}" fill="#fff"/>` + g;
+}
+function cross(x, y, label, dx = 8, dy = -8) {
+  return `<g stroke="${NAVY}" stroke-width="3"><line x1="${x - 6}" y1="${y - 6}" x2="${x + 6}" y2="${y + 6}"/><line x1="${x - 6}" y1="${y + 6}" x2="${x + 6}" y2="${y - 6}"/></g>` +
+    (label ? `<text x="${x + dx}" y="${y + dy}" class="lbl">${label}</text>` : "");
+}
+// Geodreieck-ähnliche Skala (Halbkreis, zwei Skalen) + Winkel
+function protractor(cx, cy, R, full) {
+  let s = "";
+  if (full) {
+    s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="rgba(39,171,252,0.10)" stroke="${NAVY}" stroke-width="2"/>`;
+    for (let d = 0; d < 360; d += 5) {
+      const len = d % 30 === 0 ? 16 : (d % 10 === 0 ? 10 : 5);
+      const [x1, y1] = pt(cx, cy, R, d), [x2, y2] = pt(cx, cy, R - len, d);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${NAVY}" stroke-width="${d % 30 === 0 ? 2 : 1}"/>`;
+      if (d % 30 === 0) { const [tx, ty] = pt(cx, cy, R - 30, d); s += `<text x="${tx}" y="${ty + 5}" class="scale" text-anchor="middle">${d}</text>`; }
+    }
+    return s;
+  }
+  s += `<path d="M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy} Z" fill="rgba(39,171,252,0.10)" stroke="${NAVY}" stroke-width="2"/>`;
+  for (let d = 0; d <= 180; d += 5) {
+    const len = d % 10 === 0 ? 12 : 6;
+    const [x1, y1] = pt(cx, cy, R, d), [x2, y2] = pt(cx, cy, R - len, d);
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${NAVY}" stroke-width="1.3"/>`;
+    if (d % 10 === 0) {
+      const [ox, oy] = pt(cx, cy, R - 24, d);     // äußere Skala: 0 rechts
+      const [ix, iy] = pt(cx, cy, R - 48, d);     // innere Skala: 0 links
+      s += `<text x="${ox}" y="${oy + 5}" class="scale" text-anchor="middle">${d}</text>`;
+      s += `<text x="${ix}" y="${iy + 4}" class="scale2" text-anchor="middle">${180 - d}</text>`;
+    }
+  }
+  s += `<circle cx="${cx}" cy="${cy}" r="4" fill="${RED}"/>`;
+  return s;
+}
+// Winkel mit Scheitel S. flip=false: 1. Schenkel nach rechts; flip=true: nach links
+function angleSvg(deg, o = {}) {
+  const W = 420, H = o.full ? 420 : (o.reflex ? 275 : 240), cx = 210, cy = o.full ? 210 : 215, L = 195;
+  const base = o.flip ? 180 : 0, dir2 = o.flip ? 180 - deg : deg;
+  let s = `<rect width="${W}" height="${H}" fill="#fff" rx="14"/>`;
+  if (o.protractor !== false) s += protractor(cx, cy, 175, o.full);
+  const [ax, ay] = pt(cx, cy, L, base), [bx, by] = pt(cx, cy, L, dir2);
+  // Winkelbogen
+  if (o.arc !== false) {
+    const r = 42;
+    let start = o.flip ? dir2 : base, end = o.flip ? base : dir2;
+    let large = deg > 180 ? 1 : 0;
+    if (o.reflex) { start = dir2; end = 360; large = 1; }
+    const [sx, sy] = pt(cx, cy, r, start), [ex, ey] = pt(cx, cy, r, end);
+    s += `<path d="M ${sx} ${sy} A ${r} ${r} 0 ${large} 0 ${ex} ${ey}" fill="none" stroke="${GREEN}" stroke-width="4"/>`;
+  }
+  s += `<line x1="${cx}" y1="${cy}" x2="${ax}" y2="${ay}" stroke="${NAVY}" stroke-width="4" stroke-linecap="round"/>`;
+  s += `<line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="${o.legColor || NAVY}" stroke-width="4" stroke-linecap="round" id="${o.legId || ""}"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="5" fill="${NAVY}"/>`;
+  return svgWrap(W, H, s);
+}
+function clockSvg(h, m) {
+  const cx = 110, cy = 110, R = 95;
+  let s = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fff" stroke="${NAVY}" stroke-width="5"/>`;
+  for (let i = 1; i <= 12; i++) {
+    const [x, y] = pt(cx, cy, R - 20, 90 - i * 30);
+    s += `<text x="${x}" y="${y + 7}" text-anchor="middle" class="clk">${i}</text>`;
+  }
+  const ma = 90 - m * 6, ha = 90 - (h % 12) * 30 - m * 0.5;
+  const [mx, my] = pt(cx, cy, R - 18, ma), [hx, hy] = pt(cx, cy, R - 45, ha);
+  s += `<line x1="${cx}" y1="${cy}" x2="${hx}" y2="${hy}" stroke="${NAVY}" stroke-width="8" stroke-linecap="round"/>`;
+  s += `<line x1="${cx}" y1="${cy}" x2="${mx}" y2="${my}" stroke="${RED}" stroke-width="5" stroke-linecap="round"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="7" fill="${NAVY}"/>`;
+  return svgWrap(220, 220, s);
+}
+
+// ---------- Engine ----------
+let STATE = { i: 0, tries: 0, done: false, results: [], sel: [], order: [] };
+const $ = s => document.querySelector(s);
+function parseNum(v) {
+  if (v == null) return NaN;
+  v = String(v).trim().replace(/\s/g, "").replace(",", ".").replace(/[^0-9.\-]/g, "");
+  return v === "" ? NaN : Number(v);
+}
+function stars(n) { return "⭐".repeat(n); }
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function renderDots() {
+  $("#dots").innerHTML = TASKS.map((t, k) => {
+    const r = STATE.results[k];
+    const cls = r === true ? "ok" : r === false ? "no" : (k === STATE.i ? "cur" : "");
+    return `<span class="dot ${cls}">${k + 1}</span>`;
+  }).join("");
+}
+
+function render() {
+  renderDots();
+  if (STATE.i >= TASKS.length) return renderEnd();
+  const t = TASKS[STATE.i];
+  STATE.tries = 0; STATE.done = false; STATE.sel = []; STATE.order = [];
+  let body = `<div class="meta"><span>Aufgabe ${STATE.i + 1} von ${TASKS.length}</span><span class="lvl">${stars(t.level || 1)}</span></div>`;
+  body += `<div class="q">${t.q}</div>`;
+  if (t.svg) body += `<div class="figwrap">${typeof t.svg === "function" ? t.svg() : t.svg}</div>`;
+  if (t.type === "num") {
+    const fields = t.fields || [{ label: t.label || "", answer: t.answer, unit: t.unit || "" }];
+    body += `<div class="fields">` + fields.map((f, k) =>
+      `<label class="field"><span>${f.label || ""}</span><input inputmode="decimal" autocomplete="off" id="in${k}" placeholder="?"><span class="unit">${f.unit || ""}</span></label>`).join("") + `</div>`;
+  } else if (t.type === "mc") {
+    const idx = t.options.map((o, k) => k);
+    const ord = t.noShuffle ? idx : shuffle(idx);
+    body += `<div class="opts">` + ord.map(k => `<button class="opt" data-k="${k}">${t.options[k]}</button>`).join("") + `</div>`;
+    if (Array.isArray(t.correct)) body += `<div class="note">Mehrere Antworten möglich.</div>`;
+  } else if (t.type === "order") {
+    const ord = shuffle(t.items.map((x, k) => k));
+    body += `<div class="seq" id="seq"><span class="ph">Tippe der Reihe nach …</span></div>`;
+    body += `<div class="opts">` + ord.map(k => `<button class="opt" data-k="${k}">${t.items[k]}</button>`).join("") + `</div>`;
+    body += `<button class="small" id="reset">↺ Zurücksetzen</button>`;
+  } else if (t.type === "slider") {
+    body = body.replace(`<div class="figwrap">`, `<div class="figwrap" id="sfig">`);
+    if (!t.svg) body += `<div class="figwrap" id="sfig"></div>`;
+    body += `<input type="range" min="0" max="${t.max || 180}" step="1" value="${t.start ?? 20}" id="slider" class="slider">`;
+    body += `<div class="note">Schiebe den Regler, bis der Winkel stimmt. Lies am Geodreieck ab!</div>`;
+  }
+  body += `<div class="btns"><button class="hint" id="hintb">💡 Tipp</button><button class="check" id="checkb">Prüfen</button></div>`;
+  body += `<div id="hintbox" class="hintbox" hidden>${t.hint || "Lies die Aufgabe noch einmal genau."}</div>`;
+  body += `<div id="fb" class="fb"></div>`;
+  $("#card").innerHTML = body;
+
+  // Interaktionen
+  document.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    if (STATE.done) return;
+    const k = +b.dataset.k;
+    if (t.type === "mc") {
+      if (Array.isArray(t.correct)) { b.classList.toggle("sel"); STATE.sel = [...document.querySelectorAll(".opt.sel")].map(x => +x.dataset.k); }
+      else { document.querySelectorAll(".opt").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); STATE.sel = [k]; }
+    } else if (t.type === "order") {
+      if (b.disabled) return;
+      STATE.order.push(k); b.disabled = true; b.classList.add("used");
+      $("#seq").innerHTML = STATE.order.map((j, n) => `<span class="chip">${n + 1}. ${t.items[j]}</span>`).join("");
+    }
+  });
+  if ($("#reset")) $("#reset").onclick = () => { if (STATE.done) return; STATE.order = []; document.querySelectorAll(".opt").forEach(x => { x.disabled = false; x.classList.remove("used"); }); $("#seq").innerHTML = `<span class="ph">Tippe der Reihe nach …</span>`; };
+  if (t.type === "slider") {
+    const draw = () => { $("#sfig").innerHTML = angleSvg(+$("#slider").value, { flip: t.flip, full: t.full, legColor: RED, arc: true }); };
+    $("#slider").oninput = draw; draw();
+  }
+  document.querySelectorAll("input[id^=in]").forEach(inp => inp.addEventListener("keydown", e => { if (e.key === "Enter") check(); }));
+  $("#hintb").onclick = () => { $("#hintbox").hidden = false; };
+  $("#checkb").onclick = () => STATE.done ? next() : check();
+}
+
+function isRight(t) {
+  if (t.type === "num") {
+    const fields = t.fields || [{ answer: t.answer }];
+    return fields.every((f, k) => {
+      const v = parseNum($("#in" + k).value);
+      const ans = Array.isArray(f.answer) ? f.answer : [f.answer];
+      return ans.some(a => Math.abs(v - a) <= (f.tol ?? t.tol ?? 0.001));
+    });
+  }
+  if (t.type === "mc") {
+    const c = Array.isArray(t.correct) ? t.correct.slice().sort() : [t.correct];
+    const s = STATE.sel.slice().sort();
+    return c.length === s.length && c.every((x, k) => x === s[k]);
+  }
+  if (t.type === "order") return STATE.order.length === t.items.length && STATE.order.every((x, k) => x === k);
+  if (t.type === "slider") return Math.abs(+$("#slider").value - t.target) <= (t.tol ?? 2);
+  return false;
+}
+function empty(t) {
+  if (t.type === "num") return [...document.querySelectorAll("input[id^=in]")].some(i => i.value.trim() === "");
+  if (t.type === "mc") return STATE.sel.length === 0;
+  if (t.type === "order") return STATE.order.length < t.items.length;
+  return false;
+}
+function check() {
+  const t = TASKS[STATE.i];
+  if (empty(t)) { fb("Fülle zuerst alles aus. 🙂", "warn"); return; }
+  STATE.tries++;
+  if (isRight(t)) {
+    STATE.results[STATE.i] = true;
+    finish(`✅ Richtig! ${t.explain ? "<br>" + t.explain : ""}`, "ok");
+  } else if (STATE.tries < 2) {
+    fb("❌ Noch nicht. Versuch es noch einmal – oder hol dir einen 💡 Tipp.", "no");
+    $("#hintbox").hidden = false;
+  } else {
+    STATE.results[STATE.i] = false;
+    finish(`❌ Leider falsch. <b>Lösung:</b> ${t.solution}${t.explain ? "<br>" + t.explain : ""}`, "no");
+  }
+}
+function fb(html, cls) { const f = $("#fb"); f.innerHTML = html; f.className = "fb " + cls; }
+function finish(html, cls) {
+  STATE.done = true; fb(html, cls);
+  $("#checkb").textContent = STATE.i + 1 < TASKS.length ? "Weiter ➜" : "Fertig ➜";
+  document.querySelectorAll("input,button.opt,#slider").forEach(x => x.disabled = true);
+  renderDots();
+}
+function next() { STATE.i++; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function renderEnd() {
+  const n = STATE.results.filter(x => x === true).length, N = TASKS.length;
+  const msg = n === N ? "Perfekt! Du bist ein echter Profi! 🏆" : n >= N * 0.7 ? "Stark gemacht! 💪" : "Gut geübt! Schau dir die Fehler noch einmal im Hefteintrag an.";
+  $("#card").innerHTML = `<div class="end"><div class="big">${n} von ${N}</div><div>${msg}</div>
+    <div class="note">Zeig dein Ergebnis deiner Lehrkraft.</div>
+    <button class="check" onclick="STATE={i:0,tries:0,done:false,results:[],sel:[],order:[]};render()">↺ Nochmal</button></div>`;
+}
+document.addEventListener("DOMContentLoaded", render);
+
+</script>
+<script>
+// Jede Seite: TOPICS[nr] = {title, tasks:[...]}
+// Hilfsfunktionen für Gitterbilder
+function segFig(inner, w = 420, h = 200) { return svgWrap(w, h, gridBg(w, h) + inner); }
+function line(x1, y1, x2, y2, c = NAVY, w = 4) { return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`; }
+function arrowHead(x, y, ang) { // Pfeilspitze bei (x,y), Richtung ang (Grad, math.)
+  const a = ang * Math.PI / 180, s = 14;
+  const p1 = [x - s * Math.cos(a - 0.45), y + s * Math.sin(a - 0.45)], p2 = [x - s * Math.cos(a + 0.45), y + s * Math.sin(a + 0.45)];
+  return `<polygon points="${x},${y} ${p1} ${p2}" fill="${NAVY}"/>`;
+}
+function label(x, y, t, c = NAVY, size = 20) { return `<text x="${x}" y="${y}" font-family="sans-serif" font-weight="700" font-size="${size}" fill="${c}">${t}</text>`; }
+
+// Koordinatensystem: x 0..9, y 0..6, 1 Einheit = 40 px; pts = [[x, y, "A"], ...]
+function koSys(pts = [], extra = "") {
+  const W = 440, H = 320, ox = 40, oy = 280, u = 40;
+  const X = x => ox + x * u, Y = y => oy - y * u;
+  let s = `<rect width="${W}" height="${H}" fill="#fff"/>`;
+  for (let x = 0; x <= 9; x++) s += `<line x1="${X(x)}" y1="${Y(0)}" x2="${X(x)}" y2="${Y(6.4)}" stroke="#b8d8ee" stroke-width="1.5"/>`;
+  for (let y = 0; y <= 6; y++) s += `<line x1="${X(0)}" y1="${Y(y)}" x2="${X(9.4)}" y2="${Y(y)}" stroke="#b8d8ee" stroke-width="1.5"/>`;
+  s += line(X(0), Y(0), X(9.6), Y(0), NAVY, 3) + line(X(0), Y(0), X(0), Y(6.6), NAVY, 3);
+  s += `<polygon points="${X(9.9)},${Y(0)} ${X(9.5)},${Y(0) - 7} ${X(9.5)},${Y(0) + 7}" fill="${NAVY}"/>`;
+  s += `<polygon points="${X(0)},${Y(6.9)} ${X(0) - 7},${Y(6.5)} ${X(0) + 7},${Y(6.5)}" fill="${NAVY}"/>`;
+  for (let x = 1; x <= 9; x++) s += `<text x="${X(x)}" y="${Y(0) + 24}" text-anchor="middle" class="scale">${x}</text>`;
+  for (let y = 1; y <= 6; y++) s += `<text x="${X(0) - 12}" y="${Y(y) + 5}" text-anchor="end" class="scale">${y}</text>`;
+  s += `<text x="${X(0) - 12}" y="${Y(0) + 24}" text-anchor="end" class="scale">0</text>`;
+  s += `<text x="${X(9.6)}" y="${Y(0) - 10}" class="lbl" text-anchor="middle">x</text><text x="${X(0) + 14}" y="${Y(6.7)}" class="lbl">y</text>`;
+  for (const [x, y, n, c] of pts) {
+    const col = c || NAVY;
+    s += `<g stroke="${col}" stroke-width="3.5"><line x1="${X(x) - 7}" y1="${Y(y) - 7}" x2="${X(x) + 7}" y2="${Y(y) + 7}"/><line x1="${X(x) - 7}" y1="${Y(y) + 7}" x2="${X(x) + 7}" y2="${Y(y) - 7}"/></g>`;
+    if (n) s += `<text x="${X(x) + 9}" y="${Y(y) - 9}" class="lbl" fill="${col}">${n}</text>`;
+  }
+  return svgWrap(W, H, s + extra(X, Y));
+}
+
+const TOPICS = {
+"2.1": { title: "Koordinatensystem", tasks: [
+  { type: "num", level: 1, q: "Lies die Koordinaten von <b>A</b> ab.",
+    svg: () => koSys([[3, 2, "A"]], () => ""),
+    fields: [{ label: "A( x =", answer: 3 }, { label: "| y =", answer: 2, unit: ")" }],
+    solution: "A(3|2)", hint: "Zuerst nach <b>rechts</b> (x-Achse), dann nach <b>oben</b> (y-Achse).",
+    explain: "3 nach rechts, 2 nach oben: A(3|2)." },
+  { type: "mc", level: 1, q: "Welcher Punkt hat die Koordinaten <b>(5|1)</b>?",
+    svg: () => koSys([[1, 5, "A"], [5, 1, "B"], [5, 5, "C"], [1, 1, "D"]], () => ""),
+    options: ["A", "B", "C", "D"], noShuffle: true, correct: 1, solution: "B",
+    hint: "x-Wert 5: geh 5 nach rechts. y-Wert 1: dann 1 nach oben.",
+    explain: "B liegt 5 nach rechts und 1 nach oben. A ist (1|5) – da sind x und y vertauscht!" },
+  { type: "mc", level: 1, q: "Was schreibt man in der Klammer <b>zuerst</b>?",
+    options: ["den x-Wert (nach rechts)", "den y-Wert (nach oben)"], noShuffle: true, correct: 0,
+    solution: "den x-Wert", hint: "Merksatz: Erst gehen, dann hochsteigen.",
+    explain: "P(x|y): erst der x-Wert (nach rechts), dann der y-Wert (nach oben)." },
+  { type: "num", level: 2, q: "Achtung, ein Punkt liegt auf einer Achse! Lies <b>P</b> ab.",
+    svg: () => koSys([[0, 4, "P"]], () => ""),
+    fields: [{ label: "P( x =", answer: 0 }, { label: "| y =", answer: 4, unit: ")" }],
+    solution: "P(0|4)", hint: "Wie weit musst du nach rechts gehen? Gar nicht!",
+    explain: "P liegt auf der y-Achse: 0 nach rechts, 4 nach oben → P(0|4)." },
+  { type: "mc", level: 2, q: "Tim schreibt für den Punkt Q: <b>Q(2|5)</b>. Was ist richtig?",
+    svg: () => koSys([[5, 2, "Q"]], () => ""),
+    options: ["Q(2|5) stimmt", "Q(5|2)", "Q(5|5)", "Q(2|2)"], noShuffle: true, correct: 1, solution: "Q(5|2)",
+    hint: "Hat Tim zuerst nach rechts oder zuerst nach oben gezählt?",
+    explain: "Tim hat x und y vertauscht. Richtig: 5 nach rechts, 2 nach oben → Q(5|2)." },
+  { type: "num", level: 3, q: "Knobelei: Starte bei A(2|3). Gehe <b>4 nach rechts</b> und <b>2 nach oben</b>. Wo landest du?",
+    svg: () => koSys([[2, 3, "A"]], () => ""),
+    fields: [{ label: "( x =", answer: 6 }, { label: "| y =", answer: 5, unit: ")" }],
+    solution: "(6|5)", hint: "Rechts: zum x-Wert dazuzählen. Oben: zum y-Wert dazuzählen.",
+    explain: "x: 2 + 4 = 6, y: 3 + 2 = 5 → (6|5)." },
+  { type: "num", level: 3, q: "Knobelei: A(1|2) und B(7|2) sind die Enden einer Strecke. Wo liegt die <b>Mitte M</b>?",
+    svg: () => koSys([[1, 2, "A"], [7, 2, "B"]], (X, Y) => line(X(1), Y(2), X(7), Y(2), NAVY, 3)),
+    fields: [{ label: "M( x =", answer: 4 }, { label: "| y =", answer: 2, unit: ")" }],
+    solution: "M(4|2)", hint: "Die Strecke ist 6 Kästchen lang. Die Hälfte davon ist …",
+    explain: "Von 1 bis 7 sind es 6 Kästchen, die Hälfte ist 3: 1 + 3 = 4 → M(4|2)." }
+]},
+
+"2.2": { title: "Strecke, Gerade, Halbgerade", tasks: [
+  { type: "mc", level: 1, q: "Was siehst du hier?",
+    svg: () => segFig(line(60, 100, 380, 100) + cross(110, 100, "A", -6, -14) + arrowHead(392, 100, 0)),
+    options: ["Strecke", "Gerade", "Halbgerade"], correct: 2, solution: "Halbgerade",
+    hint: "Zähle: Wie viele Endpunkte gibt es? Wo geht die Linie unendlich weiter?",
+    explain: "Eine Halbgerade hat <b>einen</b> Anfangspunkt und geht in eine Richtung unendlich weiter." },
+  { type: "mc", level: 1, q: "Welche Linie kann man mit dem Lineal <b>messen</b>?",
+    options: ["Strecke", "Gerade", "Halbgerade"], correct: 0, solution: "Strecke",
+    hint: "Messen kann man nur, was einen Anfang <i>und</i> ein Ende hat.",
+    explain: "Nur die Strecke hat zwei Endpunkte – deshalb hat sie eine feste Länge." },
+  { type: "num", level: 1, q: "Ein Kästchen ist 0,5 cm breit. Wie lang ist die Strecke <span style='white-space:nowrap'>AB</span>?",
+    svg: () => segFig(line(60, 100, 300, 100) + cross(60, 100, "A", -6, -14) + cross(300, 100, "B", -6, -14)),
+    answer: 6, unit: "cm", solution: "6 cm", hint: "Zähle die Kästchen von A bis B. 2 Kästchen = 1 cm.",
+    explain: "12 Kästchen · 0,5 cm = 6 cm." },
+  { type: "num", level: 2, q: "Die Punkte A, B und C liegen auf einer Linie. Wie viele <b>Strecken</b> mit Endpunkten A, B oder C gibt es?",
+    svg: () => segFig(line(60, 100, 360, 100) + cross(60, 100, "A", -6, -14) + cross(180, 100, "B", -6, -14) + cross(360, 100, "C", -6, -14)),
+    answer: 3, unit: "Strecken", solution: "3 (AB, BC und AC)", hint: "Vergiss die lange Strecke nicht!",
+    explain: "AB, BC und die lange Strecke AC." },
+  { type: "num", level: 3, q: "Knobelei: 5 Punkte liegen so, dass nie 3 auf einer Linie sind. Du verbindest <b>jeden Punkt mit jedem</b>. Wie viele Strecken entstehen?",
+    svg: () => { const P = [[210, 30], [350, 95], [300, 175], [120, 175], [70, 95]]; let s = ""; P.forEach((p, k) => s += cross(p[0], p[1], "ABCDE"[k], 10, 0)); return segFig(s, 420, 200); },
+    answer: 10, unit: "Strecken", solution: "10",
+    hint: "Von jedem Punkt gehen 4 Strecken aus. 5 · 4 = 20 – aber jede Strecke hast du dann doppelt gezählt!",
+    explain: "5 · 4 : 2 = 10 Strecken." },
+  { type: "mc", level: 3, q: "Zwei verschiedene Geraden schneiden sich <b>höchstens</b> …",
+    options: ["gar nicht", "in 1 Punkt", "in 2 Punkten", "unendlich oft"], noShuffle: true, correct: 1, solution: "in 1 Punkt",
+    hint: "Zeichne in Gedanken zwei gerade Linien. Können sie sich zweimal treffen?",
+    explain: "Zwei Geraden haben höchstens <b>einen</b> Schnittpunkt – oder keinen, wenn sie parallel sind." }
+]},
+
+"2.3": { title: "Senkrecht und Abstand", tasks: [
+  { type: "mc", level: 1, q: "Welches Zeichen bedeutet „steht senkrecht auf“?",
+    options: ["⊥", "∥", "=", "∠"], noShuffle: true, correct: 0, solution: "⊥", hint: "Das Zeichen sieht selbst aus wie ein rechter Winkel.",
+    explain: "g ⊥ h heißt: g steht senkrecht auf h." },
+  { type: "mc", level: 1, q: "Welche zwei Geraden stehen <b>senkrecht</b> zueinander?",
+    svg: () => segFig(
+      line(30, 40, 190, 40) + line(110, 10, 140, 90) + label(18, 30, "A") +
+      line(240, 20, 400, 90) + line(250, 90, 390, 20) + label(232, 18, "B") +
+      line(30, 160, 190, 160) + line(110, 115, 110, 195) + label(18, 150, "C") +
+      line(240, 130, 400, 130) + line(240, 170, 400, 170) + label(232, 122, "D"), 420, 200),
+    options: ["A", "B", "C", "D"], noShuffle: true, correct: 2, solution: "C",
+    hint: "Senkrecht = sie bilden einen rechten Winkel (90°). Prüfe mit der Ecke vom Geodreieck.",
+    explain: "Bei C treffen sich die Geraden genau im rechten Winkel." },
+  { type: "num", level: 1, q: "Ein Kästchen ist 0,5 cm. Wie groß ist der <b>Abstand</b> von P zur Geraden g?",
+    svg: () => segFig(line(20, 160, 400, 160) + label(380, 150, "g") + cross(200, 40, "P", 10, 0) +
+      `<line x1="200" y1="40" x2="200" y2="160" stroke="${RED}" stroke-width="3" stroke-dasharray="6 6"/>`),
+    answer: 3, unit: "cm", solution: "3 cm", hint: "Der Abstand wird immer senkrecht gemessen. Zähle die Kästchen von P bis g.",
+    explain: "6 Kästchen · 0,5 cm = 3 cm." },
+  { type: "mc", level: 2, q: "Welche Strecke ist der <b>Abstand</b> von P zur Geraden g?",
+    svg: () => segFig(line(20, 170, 400, 170) + label(385, 160, "g") + cross(210, 40, "P", 10, -4) +
+      line(210, 40, 90, 170, "#555", 3) + line(210, 40, 210, 170, "#555", 3) + line(210, 40, 330, 170, "#555", 3) +
+      cross(90, 170, "A", -6, 24) + cross(210, 170, "B", -6, 24) + cross(330, 170, "C", -6, 24), 420, 200),
+    options: ["PA", "PB", "PC"], noShuffle: true, correct: 1, solution: "PB",
+    hint: "Der Abstand ist immer die <b>kürzeste</b> Verbindung – sie steht senkrecht auf g.",
+    explain: "PB steht senkrecht auf g und ist deshalb am kürzesten." },
+  { type: "num", level: 3, q: "P liegt 2 cm über der Geraden g. Q liegt genau darunter, 3 cm unter g. Wie weit sind P und Q voneinander entfernt?",
+    answer: 5, unit: "cm", solution: "5 cm", hint: "Mach dir eine Skizze: Von P runter zu g und weiter bis Q.",
+    explain: "2 cm + 3 cm = 5 cm." },
+  { type: "mc", level: 3, q: "Knobelei: a ⊥ b und b ⊥ c. Wie liegen a und c zueinander?",
+    options: ["a ⊥ c (senkrecht)", "a ∥ c (parallel)", "Das kann man nicht sagen"], noShuffle: true, correct: 1, solution: "a ∥ c",
+    hint: "Zeichne b waagrecht. Zeichne a und c jeweils senkrecht dazu.",
+    explain: "Zwei Geraden, die beide senkrecht auf b stehen, sind parallel zueinander." }
+]},
+
+"2.4": { title: "Parallelen", tasks: [
+  { type: "mc", level: 1, q: "Welches Zeichen bedeutet „ist parallel zu“?",
+    options: ["⊥", "∥", "=", "∠"], noShuffle: true, correct: 1, solution: "∥", hint: "Zwei Striche, die sich nie treffen.",
+    explain: "g ∥ h heißt: g ist parallel zu h." },
+  { type: "mc", level: 1, q: "Welche Geraden sind <b>parallel</b>?",
+    svg: () => segFig(
+      line(30, 30, 190, 50) + line(30, 80, 190, 60) + label(14, 28, "A") +
+      line(240, 25, 400, 25) + line(250, 85, 390, 85) + label(226, 30, "B") +
+      line(40, 120, 180, 190) + line(60, 190, 190, 120) + label(14, 140, "C") +
+      line(240, 120, 400, 190) + line(260, 120, 400, 180) + label(226, 130, "D"), 420, 200),
+    options: ["A", "B", "C", "D"], noShuffle: true, correct: 1, solution: "B",
+    hint: "Parallele Geraden haben überall den gleichen Abstand und treffen sich nie.",
+    explain: "Bei B ist der Abstand überall gleich." },
+  { type: "num", level: 1, q: "Ein Kästchen ist 0,5 cm. Wie groß ist der Abstand der Parallelen g und h?",
+    svg: () => segFig(line(20, 40, 400, 40) + label(385, 30, "g") + line(20, 140, 400, 140) + label(385, 130, "h") +
+      `<line x1="150" y1="40" x2="150" y2="140" stroke="${RED}" stroke-width="3" stroke-dasharray="6 6"/>`, 420, 180),
+    answer: 2.5, unit: "cm", solution: "2,5 cm", hint: "Zähle die Kästchen zwischen g und h. 2 Kästchen = 1 cm.",
+    explain: "5 Kästchen · 0,5 cm = 2,5 cm." },
+  { type: "mc", level: 2, q: "g ∥ h und h ∥ k. Was gilt dann für g und k?",
+    options: ["g ∥ k", "g ⊥ k", "g und k schneiden sich"], noShuffle: true, correct: 0, solution: "g ∥ k",
+    hint: "Zeichne drei waagrechte Linien untereinander.", explain: "Alle drei haben die gleiche Richtung – also ist auch g ∥ k." },
+  { type: "num", level: 3, q: "Knobelei: Wie viele Parallelen zu g gibt es, die <b>genau 2 cm</b> von g entfernt sind?",
+    answer: 2, unit: "", solution: "2", hint: "Denk an beide Seiten von g!",
+    explain: "Eine oberhalb und eine unterhalb von g." },
+  { type: "num", level: 3, q: "Knobelei: Wie viele <b>Paare paralleler Seiten</b> hat dieses Sechseck?",
+    svg: () => { const P = []; for (let k = 0; k < 6; k++) P.push(pt(210, 100, 85, k * 60)); return segFig(`<polygon points="${P.map(p => p.join(",")).join(" ")}" fill="rgba(39,171,252,.2)" stroke="${NAVY}" stroke-width="4"/>`, 420, 200); },
+    answer: 3, unit: "Paare", solution: "3 Paare", hint: "Suche zu jeder Seite die gegenüberliegende Seite.",
+    explain: "Jede Seite ist parallel zur gegenüberliegenden Seite – 6 Seiten ergeben 3 Paare." }
+]},
+
+"2.5": { title: "Winkelarten", tasks: [
+  { type: "mc", level: 1, q: "Welche Winkelart ist das?", svg: () => angleSvg(35, { protractor: false }),
+    options: ["spitz", "recht", "stumpf", "überstumpf"], noShuffle: true, correct: 0, solution: "spitz",
+    hint: "Vergleiche mit dem rechten Winkel (90°): kleiner oder größer?", explain: "Kleiner als 90° → spitzer Winkel." },
+  { type: "mc", level: 1, q: "Welche Winkelart ist das?", svg: () => angleSvg(125, { protractor: false }),
+    options: ["spitz", "recht", "stumpf", "überstumpf"], noShuffle: true, correct: 2, solution: "stumpf",
+    hint: "Größer als 90°, aber kleiner als 180°?", explain: "Zwischen 90° und 180° → stumpfer Winkel." },
+  { type: "mc", level: 2, q: "Welche Winkelart ist das? <small>(Achte auf den grünen Bogen!)</small>", svg: () => angleSvg(230, { protractor: false, full: true }),
+    options: ["spitz", "stumpf", "gestreckt", "überstumpf"], noShuffle: true, correct: 3, solution: "überstumpf",
+    hint: "Der grüne Bogen ist größer als eine halbe Drehung (180°).", explain: "Zwischen 180° und 360° → überstumpfer Winkel." },
+  { type: "mc", level: 1, q: "Ein Winkel ist genau 180° groß. Wie heißt er?",
+    options: ["rechter Winkel", "gestreckter Winkel", "Vollwinkel", "stumpfer Winkel"], correct: 1, solution: "gestreckter Winkel",
+    hint: "Die Schenkel bilden eine gerade Linie.", explain: "180° = gestreckter Winkel (eine halbe Drehung)." },
+  { type: "num", level: 2, q: "Wie groß ist der Winkel zwischen den Uhrzeigern um <b>3 Uhr</b>?", svg: () => clockSvg(3, 0),
+    answer: 90, unit: "°", solution: "90°", hint: "Eine volle Drehung hat 360°. Von 12 bis 3 ist ein Viertel.", explain: "360° : 4 = 90°." },
+  { type: "num", level: 3, q: "Knobelei: Wie groß ist der (kleinere) Winkel zwischen den Uhrzeigern um <b>4 Uhr</b>?", svg: () => clockSvg(4, 0),
+    answer: 120, unit: "°", solution: "120°", hint: "Von einer Zahl zur nächsten sind es 360° : 12 = 30°.", explain: "4 · 30° = 120°." },
+  { type: "mc", level: 3, q: "Knobelei: Du legst zwei <b>spitze</b> Winkel aneinander. Was entsteht?",
+    options: ["immer ein spitzer Winkel", "immer ein stumpfer Winkel", "das kann verschieden sein"], noShuffle: true, correct: 2, solution: "das kann verschieden sein",
+    hint: "Probiere: 20° + 30° und 70° + 80°.", explain: "20° + 30° = 50° (spitz), aber 70° + 80° = 150° (stumpf)." }
+]},
+
+"2.6": { title: "Winkel messen", tasks: [
+  { type: "num", level: 1, q: "Miss den Winkel. Lies am Geodreieck ab!", svg: () => angleSvg(50),
+    answer: 50, unit: "°", solution: "50°", hint: "Der Winkel ist spitz. Nimm die Skala, die beim unteren Schenkel mit 0 beginnt.", explain: "Spitzer Winkel → 50° (nicht 130°!)." },
+  { type: "num", level: 1, q: "Miss den Winkel.", svg: () => angleSvg(125),
+    answer: 125, unit: "°", solution: "125°", hint: "Der Winkel ist stumpf – das Ergebnis muss größer als 90° sein.", explain: "Stumpfer Winkel → 125°." },
+  { type: "num", level: 2, q: "Achtung, der erste Schenkel zeigt nach <b>links</b>! Miss den Winkel.", svg: () => angleSvg(70, { flip: true }),
+    answer: 70, unit: "°", solution: "70°", hint: "Nimm jetzt die <b>innere</b> Skala – sie beginnt links mit 0.", explain: "Spitzer Winkel → 70° (nicht 110°!)." },
+  { type: "mc", level: 2, q: "Lisa misst einen <b>spitzen</b> Winkel und liest 140° ab. Wie groß ist der Winkel wirklich?",
+    options: ["140°", "40°", "50°", "90°"], correct: 1, solution: "40°", hint: "Spitz heißt kleiner als 90°. Lisa hat die falsche Skala benutzt: 180° − 140° = ?",
+    explain: "180° − 140° = 40°. Erst überlegen: spitz oder stumpf?" },
+  { type: "num", level: 3, q: "Knobelei: Der grüne Winkel ist <b>überstumpf</b>. Miss erst den kleinen Winkel, dann rechne. Wie groß ist der grüne Winkel?",
+    svg: () => angleSvg(160, { reflex: true }),
+    answer: 200, unit: "°", tol: 2, solution: "200°", hint: "Miss zuerst den kleinen Winkel oben am Geodreieck. Eine volle Drehung hat 360°.",
+    explain: "360° − 160° = 200°." },
+  { type: "num", level: 3, q: "Knobelei: Um wie viel Grad dreht sich der Minutenzeiger in <b>10 Minuten</b>?", svg: () => clockSvg(12, 10),
+    answer: 60, unit: "°", solution: "60°", hint: "In 60 Minuten dreht er sich einmal ganz herum (360°).", explain: "360° : 6 = 60°." }
+]},
+
+"2.7": { title: "Winkel zeichnen", tasks: [
+  { type: "slider", level: 1, q: "Stelle einen Winkel von <b>70°</b> ein.", target: 70, start: 20,
+    solution: "70°", hint: "70° ist spitz. Nimm die äußere Skala (0 beim rechten Schenkel).", explain: "Genau – spitz und 70°." },
+  { type: "slider", level: 1, q: "Stelle einen Winkel von <b>145°</b> ein.", target: 145, start: 20,
+    solution: "145°", hint: "145° ist stumpf – der rote Schenkel muss nach links oben zeigen.", explain: "Stumpfer Winkel mit 145°." },
+  { type: "slider", level: 2, q: "Der erste Schenkel zeigt nach <b>links</b>. Stelle <b>35°</b> ein.", target: 35, start: 90, flip: true,
+    solution: "35°", hint: "Nimm die innere Skala, die links mit 0 beginnt. 35° ist spitz!", explain: "Richtig – mit der inneren Skala." },
+  { type: "mc", level: 2, q: "Tim sollte 70° zeichnen. Sein Winkel ist aber 110° groß. Was ist passiert?",
+    options: ["Er hat die falsche Skala benutzt.", "Er hat falsch gerechnet.", "Das Geodreieck ist kaputt."], noShuffle: true, correct: 0,
+    solution: "Falsche Skala", hint: "70° + 110° = 180°. Was fällt dir auf?", explain: "Auf dem Geodreieck stehen immer zwei Zahlen. Erst überlegen: spitz oder stumpf?" },
+  { type: "slider", level: 3, q: "Knobelei: Stelle einen <b>überstumpfen</b> Winkel von <b>250°</b> ein.", target: 250, start: 30, max: 360, full: true,
+    solution: "250°", hint: "Drehe weiter als 180°. Der grüne Bogen zeigt den Winkel.", explain: "250° = 180° + 70°." },
+  { type: "num", level: 3, q: "Knobelei: Ein Vollwinkel wird in <b>3 gleich große</b> Winkel geteilt. Wie groß ist jeder Winkel?",
+    answer: 120, unit: "°", solution: "120°", hint: "Ein Vollwinkel hat 360°.", explain: "360° : 3 = 120°." }
+]},
+
+"2.8": { title: "Rechteck und Quadrat", tasks: [
+  { type: "mc", level: 1, q: "Welche Figur ist ein <b>Quadrat</b>?",
+    svg: () => segFig(
+      `<rect x="30" y="50" width="110" height="70" fill="rgba(39,171,252,.25)" stroke="${NAVY}" stroke-width="4"/>` + label(70, 150, "A") +
+      `<polygon points="250,30 300,80 250,130 200,80" fill="rgba(39,171,252,.25)" stroke="${NAVY}" stroke-width="4"/>` + label(242, 165, "B") +
+      `<polygon points="330,120 400,120 410,50 340,50" fill="rgba(39,171,252,.25)" stroke="${NAVY}" stroke-width="4"/>` + label(360, 150, "C"), 420, 180),
+    options: ["A", "B", "C"], noShuffle: true, correct: 1, solution: "B",
+    hint: "Auch ein gedrehtes Quadrat bleibt ein Quadrat! Alle Seiten gleich lang, alle Winkel 90°.", explain: "B ist ein gedrehtes Quadrat." },
+  { type: "mc", level: 1, q: "Was hat <b>jedes</b> Rechteck? <small>(Mehrere Antworten richtig)</small>",
+    options: ["4 rechte Winkel", "gegenüberliegende Seiten sind gleich lang", "alle Seiten sind gleich lang", "gegenüberliegende Seiten sind parallel"],
+    correct: [0, 1, 3], solution: "4 rechte Winkel, gegenüberliegende Seiten gleich lang und parallel", hint: "„Alle Seiten gleich lang“ gilt nur beim Quadrat.",
+    explain: "Rechteck: 4 rechte Winkel, gegenüberliegende Seiten gleich lang und parallel." },
+  { type: "mc", level: 1, q: "Stimmt das? „Jedes Quadrat ist auch ein Rechteck.“",
+    options: ["richtig", "falsch"], noShuffle: true, correct: 0, solution: "richtig", hint: "Hat ein Quadrat 4 rechte Winkel?",
+    explain: "Ein Quadrat ist ein besonderes Rechteck – mit 4 gleich langen Seiten." },
+  { type: "num", level: 2, q: "Das Rechteck ABCD hat die Ecken A(1|1), B(6|1) und C(6|4). Wo liegt D?",
+    fields: [{ label: "D( x =", answer: 1 }, { label: "| y =", answer: 4, unit: ")" }],
+    solution: "D(1|4)", hint: "D liegt genau über A und auf gleicher Höhe wie C.", explain: "D hat den x-Wert von A und den y-Wert von C: D(1|4)." },
+  { type: "num", level: 3, q: "Knobelei: Wie viele <b>Quadrate</b> findest du in diesem 3 × 3-Gitter?",
+    svg: () => { let s = ""; for (let k = 0; k <= 3; k++) { s += line(120 + k * 60, 10, 120 + k * 60, 190, NAVY, 3) + line(120, 10 + k * 60, 300, 10 + k * 60, NAVY, 3); } return svgWrap(420, 200, `<rect width="420" height="200" fill="#fff"/>` + s); },
+    answer: 14, unit: "Quadrate", solution: "14", hint: "Zähle getrennt: kleine (1×1), mittlere (2×2) und das große (3×3).", explain: "9 + 4 + 1 = 14 Quadrate." },
+  { type: "num", level: 3, q: "Knobelei: Wie viele <b>Rechtecke</b> (Quadrate zählen mit!) findest du in diesem Streifen?",
+    svg: () => { let s = ""; for (let k = 0; k <= 4; k++) s += line(70 + k * 70, 70, 70 + k * 70, 130, NAVY, 3); s += line(70, 70, 350, 70, NAVY, 3) + line(70, 130, 350, 130, NAVY, 3); return svgWrap(420, 200, `<rect width="420" height="200" fill="#fff"/>` + s); },
+    answer: 10, unit: "Rechtecke", solution: "10", hint: "Zähle: 1 Kästchen lang, 2 Kästchen lang, 3 lang, 4 lang.", explain: "4 + 3 + 2 + 1 = 10." }
+]},
+
+"2.9": { title: "Längen schätzen", tasks: [
+  { type: "mc", level: 1, q: "Wie hoch ist eine Zimmertür ungefähr?", options: ["2 cm", "20 cm", "2 m", "20 m"], noShuffle: true, correct: 2, solution: "2 m",
+    hint: "Die Türklinke ist ungefähr 1 m hoch.", explain: "Eine Tür ist etwa 2 m hoch." },
+  { type: "mc", level: 1, q: "Wie dick ist eine 2-Cent-Münze ungefähr?", options: ["1 mm", "1 cm", "1 dm", "1 m"], noShuffle: true, correct: 0, solution: "1 mm",
+    hint: "Das ist eine unserer Vergleichsgrößen!", explain: "Eine 2-Cent-Münze ist etwa 1 mm dick." },
+  { type: "mc", level: 1, q: "Welche Einheit passt am besten für die Länge deines Schulwegs?", options: ["mm", "cm", "m oder km", "dm"], noShuffle: true, correct: 2, solution: "m oder km",
+    hint: "Der Schulweg ist viel länger als dein Lineal.", explain: "Lange Wege misst man in m oder km." },
+  { type: "order", level: 2, q: "Ordne von <b>kurz</b> nach <b>lang</b>.",
+    items: ["Ameise", "Bleistift", "Tisch", "Klassenzimmer", "Fußballfeld"], solution: "Ameise – Bleistift – Tisch – Klassenzimmer – Fußballfeld",
+    hint: "Ameise ≈ 5 mm, Bleistift ≈ 17 cm, Tisch ≈ 1 m …", explain: "≈ 5 mm < 17 cm < 1 m < 8 m < 100 m" },
+  { type: "mc", level: 2, q: "Ein Bus ist etwa 12 m lang. Wie lang sind ungefähr 5 Busse hintereinander?", options: ["17 m", "60 m", "120 m", "600 m"], correct: 1, solution: "60 m",
+    hint: "5 · 12 m = ?", explain: "5 · 12 m = 60 m." },
+  { type: "num", level: 3, q: "Knobelei: Dein Schritt ist etwa 50 cm lang. Du gehst 200 Schritte. Wie viele <b>Meter</b> bist du gegangen?",
+    answer: 100, unit: "m", solution: "100 m", hint: "2 Schritte ≈ 1 m.", explain: "200 · 50 cm = 10 000 cm = 100 m." },
+  { type: "num", level: 3, q: "Knobelei: Ein Stapel aus 100 Blatt Papier ist 1 cm hoch. Wie dick ist <b>ein</b> Blatt in mm? <small>(Kommazahl, z. B. 0,5)</small>",
+    answer: 0.1, unit: "mm", solution: "0,1 mm", hint: "1 cm = 10 mm. 10 mm verteilt auf 100 Blätter …", explain: "10 mm : 100 = 0,1 mm." }
+]},
+
+"2.10": { title: "Längen umrechnen", tasks: [
+  { type: "num", level: 1, q: "5 m = ? cm", answer: 500, unit: "cm", solution: "500 cm", hint: "1 m = 100 cm.", explain: "5 · 100 = 500." },
+  { type: "num", level: 1, q: "80 mm = ? cm", answer: 8, unit: "cm", solution: "8 cm", hint: "10 mm = 1 cm. In die größere Einheit → geteilt.", explain: "80 : 10 = 8." },
+  { type: "num", level: 1, q: "3 km = ? m", answer: 3000, unit: "m", solution: "3000 m", hint: "1 km = 1000 m.", explain: "3 · 1000 = 3000." },
+  { type: "num", level: 2, q: "4 m 7 cm = ? cm", answer: 407, unit: "cm", solution: "407 cm", hint: "4 m = 400 cm. Dann noch 7 cm dazu – Achtung, nicht 47!", explain: "400 cm + 7 cm = 407 cm." },
+  { type: "num", level: 2, q: "2500 m = ? km ? m", fields: [{ label: "", answer: 2, unit: "km" }, { label: "", answer: 500, unit: "m" }],
+    solution: "2 km 500 m", hint: "1000 m = 1 km. Wie oft passt 1000 in 2500?", explain: "2000 m = 2 km, Rest 500 m." },
+  { type: "order", level: 2, q: "Ordne von <b>kurz</b> nach <b>lang</b>.", items: ["1 dm", "150 mm", "98 cm", "1 m 5 cm"],
+    solution: "1 dm – 150 mm – 98 cm – 1 m 5 cm", hint: "Rechne alles in cm um: 1 dm = 10 cm, 150 mm = 15 cm …", explain: "10 cm < 15 cm < 98 cm < 105 cm" },
+  { type: "num", level: 3, q: "Knobelei (Buch S. 59 Nr. 6): Pinky ist 7 cm lang und 8 mm länger als Kringel. Kringel ist 12 mm länger als Watty. Watty ist 1 cm kürzer als Snake. Wie lang sind sie in mm?",
+    fields: [{ label: "Kringel", answer: 62, unit: "mm" }, { label: "Watty", answer: 50, unit: "mm" }, { label: "Snake", answer: 60, unit: "mm" }],
+    solution: "Kringel 62 mm, Watty 50 mm, Snake 60 mm", hint: "Rechne zuerst Pinky in mm um: 7 cm = 70 mm. Dann Schritt für Schritt.",
+    explain: "70 − 8 = 62; 62 − 12 = 50; 50 + 10 = 60." }
+]},
+
+"2.11": { title: "Umfang", tasks: [
+  { type: "num", level: 1, q: "Berechne den Umfang des Rechtecks.",
+    svg: () => segFig(`<rect x="90" y="40" width="240" height="120" fill="rgba(39,171,252,.2)" stroke="${NAVY}" stroke-width="4"/>` + label(185, 30, "6 cm", RED) + label(340, 108, "4 cm", RED), 420, 200),
+    answer: 20, unit: "cm", solution: "20 cm", hint: "u = 2 · a + 2 · b", explain: "2 · 6 cm + 2 · 4 cm = 12 cm + 8 cm = 20 cm." },
+  { type: "num", level: 1, q: "Berechne den Umfang des Quadrats mit a = 7 cm.", answer: 28, unit: "cm", solution: "28 cm", hint: "u = 4 · a", explain: "4 · 7 cm = 28 cm." },
+  { type: "num", level: 1, q: "Ein Kästchen ist 1 cm lang. Wie groß ist der Umfang?",
+    svg: () => segFig(`<rect x="80" y="60" width="200" height="80" fill="rgba(39,171,252,.25)" stroke="${NAVY}" stroke-width="4"/>`, 420, 200),
+    answer: 28, unit: "cm", solution: "28 cm", hint: "Zähle die Kästchen: Wie lang ist das Rechteck, wie breit?", explain: "Länge 10 cm, Breite 4 cm: 2 · 10 cm + 2 · 4 cm = 28 cm." },
+  { type: "num", level: 2, q: "Ein Quadrat hat den Umfang u = 36 cm. Wie lang ist eine Seite?", answer: 9, unit: "cm", solution: "9 cm", hint: "Ein Quadrat hat 4 gleich lange Seiten.", explain: "36 cm : 4 = 9 cm." },
+  { type: "num", level: 2, q: "Ein Rechteck hat u = 30 cm und ist 9 cm lang. Wie breit ist es?", answer: 6, unit: "cm", solution: "6 cm",
+    hint: "Zwei Längen zusammen: 2 · 9 cm = 18 cm. Was bleibt für die zwei Breiten übrig?", explain: "30 − 18 = 12; 12 : 2 = 6 cm." },
+  { type: "num", level: 3, q: "Knobelei (Buch S. 65 Nr. 10): Berechne den Umfang der Figur. Alle Maße in cm.",
+    svg: () => svgWrap(420, 220, `<rect width="420" height="220" fill="#fff"/><polygon points="50,40 200,40 200,110 280,110 280,180 50,180" fill="rgba(39,171,252,.25)" stroke="${NAVY}" stroke-width="4"/>` +
+      label(140, 205, "34", RED) + label(18, 118, "18", RED) + label(207, 72, "10", RED) + label(232, 102, "14", RED)),
+    answer: 104, unit: "cm", solution: "104 cm", hint: "Schiebe die eingeknickten Kanten in Gedanken nach außen – dann hast du ein Rechteck 34 × 18!",
+    explain: "Gleicher Umfang wie das Rechteck: 2 · 34 + 2 · 18 = 68 + 36 = 104 cm." },
+  { type: "mc", level: 3, q: "Knobelei: Du <b>verdoppelst</b> die Seitenlänge eines Quadrats. Was passiert mit dem Umfang?",
+    options: ["er bleibt gleich", "er verdoppelt sich", "er vervierfacht sich"], noShuffle: true, correct: 1, solution: "er verdoppelt sich",
+    hint: "Probiere: a = 2 cm und a = 4 cm.", explain: "4 · 2 cm = 8 cm, 4 · 4 cm = 16 cm → doppelt so groß." }
+]}
+};
+
+const TASKS = TOPICS["2.1"].tasks;
+
+</script>
+</body>
+</html>
