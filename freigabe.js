@@ -7,7 +7,7 @@
    → true/false tauschen → „Commit changes“. Nach 1–2 Minuten aktiv.
    ============================================================ */
 window.FREIGABE = {
-  "2-1":  true,   // 2.1  Koordinatensystem
+  "2-1":  false,   // 2.1  Koordinatensystem
   "2-2":  true,   // 2.2  Gerade und Strecke
   "2-3":  false,   // 2.3  Senkrechte und Abstand
   "2-4":  false,   // 2.4  Parallelen
