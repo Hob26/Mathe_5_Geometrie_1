@@ -213,7 +213,7 @@ function render() {
   if (STATE.i >= TASKS.length) return renderEnd();
   const t = TASKS[STATE.i];
   STATE.tries = 0; STATE.done = false; STATE.sel = []; STATE.order = [];
-  let body = `<div class="meta"><span>${NIV[STATE.niv]} · Aufgabe ${STATE.i + 1} von ${TASKS.length}</span><span class="lvl">${stars(t.level || 1)}</span></div>`;
+  let body = `<div class="meta"><span>${NIV[STATE.niv]} · Aufgabe ${STATE.i + 1} von ${TASKS.length}</span><span class="lvl">${STATE.niv === "B" ? "⭐" : "⭐⭐⭐"}</span></div>`;
   body += `<div class="q">${t.q}</div>`;
   if (t.svg) body += `<div class="figwrap">${typeof t.svg === "function" ? t.svg() : t.svg}</div>`;
   if (t.type === "num") {
