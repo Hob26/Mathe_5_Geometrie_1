@@ -8,7 +8,7 @@
    ============================================================ */
 window.FREIGABE = {
   "2-1":  true,   // 2.1  Koordinatensystem
-  "2-2":  false,   // 2.2  Gerade und Strecke
+  "2-2":  true,   // 2.2  Gerade und Strecke
   "2-3":  false,   // 2.3  Senkrechte und Abstand
   "2-4":  false,   // 2.4  Parallelen
   "2-5":  false,   // 2.5  Winkel und Winkelarten
