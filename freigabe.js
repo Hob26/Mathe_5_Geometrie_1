@@ -8,9 +8,9 @@
    ============================================================ */
 window.FREIGABE = {
   "2-1":  false,   // 2.1  Koordinatensystem
-  "2-2":  true,   // 2.2  Gerade und Strecke
-  "2-3":  false,   // 2.3  Senkrechte und Abstand
-  "2-4":  false,   // 2.4  Parallelen
+  "2-2":  false,   // 2.2  Gerade und Strecke
+  "2-3":  true,   // 2.3  Senkrechte und Abstand
+  "2-4":  true,   // 2.4  Parallelen
   "2-5":  false,   // 2.5  Winkel und Winkelarten
   "2-6":  false,   // 2.6  Winkel messen
   "2-7":  false,   // 2.7  Winkel zeichnen
