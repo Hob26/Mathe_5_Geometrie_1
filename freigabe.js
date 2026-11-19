@@ -11,7 +11,7 @@ window.FREIGABE = {
   "2-2":  false,   // 2.2  Gerade und Strecke
   "2-3":  false,   // 2.3  Senkrechte und Abstand
   "2-4":  false,   // 2.4  Parallelen
-  "2-5":  true,   // 2.5  Winkel und Winkelarten
+  "2-5":  false,   // 2.5  Winkel und Winkelarten
   "2-6":  true,   // 2.6  Winkel messen
   "2-7":  false,   // 2.7  Winkel zeichnen
   "2-8":  false,   // 2.8  Rechteck und Quadrat
